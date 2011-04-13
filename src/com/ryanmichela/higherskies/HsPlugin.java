@@ -1,3 +1,18 @@
+//Copyright (C) 2011  Ryan Michela
+//
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 package com.ryanmichela.higherskies;
 
 import org.bukkit.Chunk;
@@ -28,19 +43,23 @@ public class HsPlugin extends JavaPlugin {
 			loadedChunks += w.getLoadedChunks().length;
 		}
 		
-		// Drop the initially loaded world
-		for(World w : getServer().getWorlds()) {
-			int i = 0;
-			for(Chunk c : w.getLoadedChunks()) {
-				if(listener.lowerChunk(c)) i++;
-				if(i > 10) {
-					getServer().getLogger().info("[Higher Skies] Saving " + ((processedChunks * 100) / loadedChunks) + "%");
-					w.save();
-					i = 0;
+		int drop = config.lowerWorldBy();
+		
+		if(drop != 0) {
+			// Drop the initially loaded world
+			for(World w : getServer().getWorlds()) {
+				int i = 0;
+				for(Chunk c : w.getLoadedChunks()) {
+					if(listener.lowerChunk(c)) i++;
+					if(i > 10) {
+						getServer().getLogger().info("[Higher Skies] Saving " + ((processedChunks * 100) / loadedChunks) + "%");
+						w.save();
+						i = 0;
+					}
+					processedChunks++;
 				}
-				processedChunks++;
+				w.save();
 			}
-			w.save();
 		}
 		
 		getServer().getLogger().info("[Higher Skies] Complete!.");

@@ -1,0 +1,57 @@
+ _   _  _         _                   _____  _     _            
+| | | |(_)       | |                 /  ___|| |   (_)           
+| |_| | _   __ _ | |__    ___  _ __  \ `--. | | __ _   ___  ___ 
+|  _  || | / _` || '_ \  / _ \| '__|  `--. \| |/ /| | / _ \/ __|
+| | | || || (_| || | | ||  __/| |    /\__/ /|   < | ||  __/\__ \
+\_| |_/|_| \__, ||_| |_| \___||_|    \____/ |_|\_\|_| \___||___/
+            __/ |                                               
+           |___/
+ 
+===================================================================          
+== W A R N I N G: This plugin is experimental! Use at own risk.  ==
+===================================================================
+           
+==== Overview ====
+Higher Skies is an experimental bukkit plugin that increases
+the apparent height limit in Minecraft by lowering the entire
+world.
+
+Higher Skies rewrites each map chunk as it is loaded into memory
+by stripping off the bottom few layers of the chunk and then
+shifting the entire chunk contents down. Finally, Higher Skies
+seals the bottom of the chunk with beadrock and adds a marker
+block. The marker block ensures that chunks are only rewritten
+once.
+
+The first time Higher Skies starts, it will attempt to rewrite all
+the chunks loaded around the world spawn. This process can take
+a LONG time and consumes a tremendous amount of memory. During the
+process, the server may crash. Anticipating this, Higher Skies
+saves its work periodically and will pick up the job near where it
+left off at the next server start.
+
+It is not recommended that you use Higher Skies on an in-progress
+Minecraft world. This plugin is experimental and chest inventories,
+redstone states, minecarts, and world decorations may be destroyed
+in the chunk rewriting process. In fresh worlds, chunks are rewritten
+and marked with the marker block well before they are within the
+reach of a player, so content destruction is not a problem.
+
+==== Installation ====
+0. BACK UP YOUR WORLD!
+1. Create a new startbukkit.sh file
+2. Install HigherSkies.jar into your plugins directory
+3. Start your server - the config.yml file will be created
+4. Open the config.yml file and set the number of blocks to drop
+   your world.
+5. Reload the server - Chunk processing will begin
+
+==== startbukkit.sh ====
+Higher Skies requires all the optimizations java can muster and a
+powerful machine to run it on. Use the following startbukkit.sh
+script to set java's initial options.
+
+#!/bin/sh
+java -server -native -Xmx2048M -Xms2048M -XX:+UseConcMarkSweepGC 
+-XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 
+-XX:+AggressiveOpts -jar craftbukkit-0.0.1-SNAPSHOT.jar
