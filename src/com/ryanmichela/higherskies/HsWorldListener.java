@@ -2,6 +2,7 @@ package com.ryanmichela.higherskies;
 
 import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldListener;
 import org.bukkit.plugin.Plugin;
@@ -21,12 +22,11 @@ public class HsWorldListener extends WorldListener{
 		lowerChunk(event.getChunk());
 	}
 	
-	public void lowerChunk(Chunk chunk) {
+	public boolean lowerChunk(Chunk chunk) {
 		// Note: Lowered chunks are marked with Brick at 0,0,0
 		int drop = config.lowerWorldBy();
 		
 		if(chunk.getBlock(0, 0, 0).getType() != Material.BRICK && drop != 0) {
-			plugin.getServer().getLogger().info("[Higher Skies] Lowering chunk " + chunk);
 			
 			// Drop the chunk
 			for(int y = 0; y < 127 - drop; y++) {
@@ -52,11 +52,12 @@ public class HsWorldListener extends WorldListener{
 						}
 						
 						// Drop all other blocks
-						Material m = chunk.getBlock(x, y + drop, z).getType();
-						chunk.getBlock(x, y, z).setType(m);
+						Block b = chunk.getBlock(x, y + drop, z);
+						chunk.getBlock(x, y, z).setTypeIdAndData(b.getTypeId(), b.getData(), false);
 					}
 				}
 			}
-		}
+			return true;
+		} else return false;
 	}
 }

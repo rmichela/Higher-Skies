@@ -17,20 +17,34 @@ public class HsPlugin extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		getServer().getLogger().info("[Higher Skies] Enabled. Processing loaded chunks...");
+		getServer().getLogger().info("[Higher Skies] Enabled. Initializing worlds...");
 		
 		HsWorldListener listener = new HsWorldListener(config, this);
 		getServer().getPluginManager().registerEvent(Type.CHUNK_LOAD, listener, Priority.Normal, this);
 		
+		int loadedChunks = 0;
+		int processedChunks = 0;
+		for(World w : getServer().getWorlds()) {
+			loadedChunks += w.getLoadedChunks().length;
+		}
+		
 		// Drop the initially loaded world
 		for(World w : getServer().getWorlds()) {
+			int i = 0;
 			for(Chunk c : w.getLoadedChunks()) {
-				listener.lowerChunk(c);
+				if(listener.lowerChunk(c)) i++;
+				if(i > 10) {
+					getServer().getLogger().info("[Higher Skies] Saving " + ((processedChunks * 100) / loadedChunks) + "%");
+					w.save();
+					i = 0;
+				}
+				processedChunks++;
 			}
 			w.save();
 		}
 		
 		getServer().getLogger().info("[Higher Skies] Complete!.");
+		
 	}
 
 	@Override
