@@ -1,0 +1,7 @@
+name: HigherSkies
+main: com.ryanmichela.higherskies.HsPlugin
+version: 2
+website: https://github.com/rmichela/HigherSkies
+author: Ryan Michela
+description: >
+             Lowers the world, giving you more room to build.
