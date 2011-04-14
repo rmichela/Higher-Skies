@@ -34,45 +34,70 @@ public class HsWorldListener extends WorldListener{
 	
 	@Override
 	public void onChunkLoad(ChunkLoadEvent event) {
-		lowerChunk(event.getChunk());
+		if(chunkNeedsLowering(event.getChunk())) {
+			lowerChunkImpl(event.getChunk());
+		}
 	}
 	
 	public boolean lowerChunk(Chunk chunk) {
+		if(chunkNeedsLowering(chunk)) {
+			lowerChunkImpl(chunk);
+			return true;
+		} else return false;
+	}
+	
+	private boolean chunkNeedsLowering(Chunk chunk) {
 		// Note: Lowered chunks are marked with Brick at 0,0,0
 		int drop = config.lowerWorldBy();
-		
-		if(chunk.getBlock(0, 0, 0).getType() != Material.BRICK && drop != 0) {
+		return chunk.getBlock(0, 0, 0).getType() != Material.BRICK && drop != 0;
+	}
+	
+	private void lowerChunkImpl(Chunk chunk) {
+		// Note: Lowered chunks are marked with Brick at 0,0,0
+		int drop = config.lowerWorldBy();			
 			
-			// Drop the chunk
-			for(int y = 0; y < 127 - drop; y++) {
-				for(int x = 0; x < 16; x++) {
-					for(int z = 0; z < 16; z++) {
-						
-						// Lay a bedrock floor
-						if(y == 0 && x != 0 && z != 0) {
-							chunk.getBlock(x, 0, z).setType(Material.BEDROCK);
-							continue;
-						}
-						
-						// Set the marker block
-						if(y == 0 && x == 0 && z == 0) {
-							chunk.getBlock(0, 0, 0).setType(Material.BRICK);
-							continue;
-						}
-						
-						// Cap the marker block
-						if(y == 1 && x == 0 && z == 0) {
-							chunk.getBlock(0, 1, 0).setType(Material.BEDROCK);
-							continue;
-						}
-						
-						// Drop all other blocks
+		// Drop the chunk
+		for(int y = 0; y < 127; y++) {
+			for(int x = 0; x < 16; x++) {
+				for(int z = 0; z < 16; z++) {
+					
+					// Set the marker block
+					if(y == 0 && x == 0 && z == 0) {
+						chunk.getBlock(0, 0, 0).setType(Material.BRICK);
+						continue;
+					}
+					
+					// Lay a bedrock floor
+					if(y == 0) {
+						chunk.getBlock(x, 0, z).setType(Material.BEDROCK);
+						continue;
+					}
+
+					// Cap the marker block
+					if(y == 1 && x == 0 && z == 0) {
+						chunk.getBlock(0, 1, 0).setType(Material.BEDROCK);
+						continue;
+					}
+					
+					// Drop all blocks
+					if(y < 127 - drop) {						
 						Block b = chunk.getBlock(x, y + drop, z);
-						chunk.getBlock(x, y, z).setTypeIdAndData(b.getTypeId(), b.getData(), false);
+						if(b.getType() == Material.WATER || b.getType() == Material.LAVA) {
+							chunk.getBlock(x, y, z).setType(Material.AIR);
+						} else {
+							chunk.getBlock(x, y, z).setTypeIdAndData(b.getTypeId(), b.getData(), false);
+						}
+						continue;
+					}
+					
+					// Fill in the remainder with air
+					if( y >= 127 - drop) {
+						chunk.getBlock(x, y, z).setType(Material.AIR);
+						continue;
 					}
 				}
 			}
-			return true;
-		} else return false;
+		}
+		chunk.getWorld().refreshChunk(chunk.getX(), chunk.getZ());		
 	}
 }
